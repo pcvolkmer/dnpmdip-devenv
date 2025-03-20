@@ -1,0 +1,80 @@
+services:
+
+  mysql:
+    image: mysql
+    pull_policy: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    environment:
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_ROOT_PASSWORD: ${DEV_PASSWORD:-devpass}
+    env_file:
+      - dev.env
+
+  authup:
+    image: authup/authup
+    pull_policy: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: server/core start
+    environment:
+      PUBLIC_URL: ${DEV_BASE_URL:-http://localhost}/auth/
+      AUTHORIZE_REDIRECT_URL: ${DEV_BASE_URL:-http://localhost}
+      ROBOT_ADMIN_ENABLED: "true"
+      ROBOT_ADMIN_SECRET: ${DEV_PASSWORD:-devpass}
+      ROBOT_ADMIN_SECRET_RESET: "true"
+      USER_ADMIN_NAME: ${DEV_USERNAME:-admin}
+      USER_ADMIN_PASSWORD: ${DEV_PASSWORD:-devpass}
+      DB_TYPE: mysql
+      DB_HOST: mysql
+      DB_USERNAME: root
+      DB_PASSWORD: ${DEV_PASSWORD:-devpass}
+      DB_DATABASE: auth
+    env_file:
+      - dev.env
+
+  portal:
+    image: ghcr.io/dnpm-dip/portal
+    pull_policy: always
+    environment:
+      NUXT_API_URL: http://backend:9000/
+      NUXT_PUBLIC_API_URL: ${DEV_BASE_URL:-http://localhost}/api/
+      NUXT_AUTHUP_URL: http://authup:3000/
+      NUXT_PUBLIC_AUTHUP_URL: ${DEV_BASE_URL:-http://localhost}/auth/
+    env_file:
+      - dev.env
+     
+  backend:
+    image: ghcr.io/dnpm-dip/backend
+    pull_policy: always
+    volumes:
+      - './config:/dnpm_config'
+      - './data:/dnpm_data'
+    depends_on:
+      authup:
+        condition: service_healthy
+    environment:
+      LOCAL_SITE: UKX:DevSite
+      RD_RANDOM_DATA: -1
+      MTB_RANDOM_DATA: -1
+      HATEOAS_HOST: ${DEV_BASE_URL:-http://localhost}/api
+      CONNECTOR_TYPE: broker
+      AUTHUP_URL: robot://system:${DEV_PASSWORD:-devpass}@http://authup:3000
+    env_file:
+      - dev.env
+
+  nginx:
+    image: nginx:stable-alpine-slim
+    ports:
+      - 80:80
+    volumes:
+      - './config/nginx.conf:/etc/nginx/nginx.conf'
+    depends_on:
+      authup:
+        condition: service_healthy
+      backend:
+        condition: service_healthy

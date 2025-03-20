@@ -1,0 +1,80 @@
+# DNPM:DIP dev env
+
+Simplified docker based DNPM:DIP environment for development purposes 
+
+## Configuration
+
+Edit file `dev.env` as required. Default values are:
+
+```
+DEV_BASE_URL=http://localhost
+DEV_USERNAME=admin
+DEV_PASSWORD=devpass
+```
+
+## Start environment
+
+```
+docker compose up
+```
+
+## Web-UI and other useful REST-URLs
+
+To visit the web based UI visit http://localhost/ after docker compose started all services.
+Login with username `admin` and password `devpass` - or username/password you have set in `dev.env`.
+
+Other helpful URIs with examples:
+
+### Request generated test data
+
+Use http://localhost/api/mtb/fake/data/patient-record to request generated test data for MTB patient records and save
+the generated data into file named `fakedata.json`.
+
+```
+curl \
+  http://localhost/api/mtb/fake/data/patient-record \
+  -o fakedata.json
+```
+
+### Send a patient record
+
+Use http://localhost/api/mtb/etl/patient-record to send MTB patient records
+
+```
+curl \
+  -d @fakedata.json \
+  -H "Content-Type: application/json+v2" \
+  http://localhost/api/mtb/etl/patient-record
+```
+
+To pretty print the validation result, use `jq` (if installed):
+
+```
+curl \
+  -d @fakedata.json \
+  -H "Content-Type: application/json+v2" \
+  http://localhost/api/mtb/etl/patient-record \
+  | jq
+```
+
+This will print out something like
+
+```
+{
+  "patient": "cb15196a-1191-492e-ab94-c50a52e60a78",
+  "issues": [
+    ... Reported issues ...
+  ]
+}
+```
+
+### Delete a patient record
+
+Use http://localhost/api/mtb/etl/patient-record/{patient} to delete a patient record using the `patient`-ID from
+the validation response above.
+
+```
+curl \
+  -X DELETE \
+  http://localhost/api/mtb/etl/patient/cb15196a-1191-492e-ab94-c50a52e60a78
+```
