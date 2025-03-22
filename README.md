@@ -2,17 +2,9 @@
 
 Simplified docker based DNPM:DIP environment for development purposes 
 
-## Configuration
-
-Edit file `dev.env` as required. Default values are:
-
-```
-DEV_BASE_URL=http://localhost
-DEV_USERNAME=admin
-DEV_PASSWORD=devpass
-```
-
 ## Start environment
+
+The default configuration uses HTTP port `80` on `localhost`.
 
 ```
 docker compose up
@@ -20,7 +12,7 @@ docker compose up
 
 ## Web-UI and other useful REST-URLs
 
-To visit the web based UI visit http://localhost/ after docker compose started all services.
+To use the web based UI visit http://localhost/ after docker compose started all services.
 Login with username `admin` and password `devpass` - or username/password you have set in `dev.env`.
 
 Other helpful URIs with examples:
@@ -77,4 +69,21 @@ the validation response above.
 curl \
   -X DELETE \
   http://localhost/api/mtb/etl/patient/cb15196a-1191-492e-ab94-c50a52e60a78
+```
+
+## Configuration (Optional)
+
+Edit file `dev.env` as required. Default values are:
+
+```
+DEV_PORT=80
+DEV_BASE_URL=http://localhost:${DEV_PORT}
+DEV_USERNAME=admin
+DEV_PASSWORD=devpass
+```
+
+Start environment using modified `dev.env` file:
+
+```
+docker compose --env-file dev.env up
 ```
