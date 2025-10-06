@@ -41,7 +41,7 @@ services:
       NUXT_PUBLIC_API_URL: ${DEV_BASE_URL:-http://localhost}/api/
       NUXT_AUTHUP_URL: http://authup:3000/
       NUXT_PUBLIC_AUTHUP_URL: ${DEV_BASE_URL:-http://localhost}/auth/
-     
+
   backend:
     image: ghcr.io/dnpm-dip/backend
     pull_policy: always
@@ -70,3 +70,18 @@ services:
         condition: service_healthy
       backend:
         condition: service_healthy
+    profiles: [http]
+
+  nginx-ssl:
+    image: nginx:stable-alpine-slim
+    ports:
+      - ${DEV_PORT:-443}:443
+    volumes:
+      - './config/nginx-ssl.conf:/etc/nginx/nginx.conf'
+      - './config/ssl-dev-fixture:/etc/nginx/ssl/'
+    depends_on:
+      authup:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    profiles: [https]

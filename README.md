@@ -1,6 +1,6 @@
 # DNPM:DIP dev env
 
-Simplified docker based DNPM:DIP environment for development purposes 
+Simplified docker based DNPM:DIP environment for development purposes
 
 ## Start environment
 
@@ -73,7 +73,7 @@ curl \
 
 ## Configuration (Optional)
 
-Edit file `dev.env` as required. Default values are:
+Edit file `dev.env` (or `dev-ssl.env` for HTTPS) as required. Default values for HTTP are:
 
 ```
 DEV_PORT=80
@@ -87,3 +87,13 @@ Start environment using modified `dev.env` file:
 ```
 docker compose --env-file dev.env up
 ```
+
+## HTTPS based configuration
+
+To start with encrypted HTTPS use:
+
+```
+docker compose --env-file dev-ssl.env up
+```
+
+This will use self signed SSL-certificates for `localhost` from `config/ssl-dev-fixture`.
