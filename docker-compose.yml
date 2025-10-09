@@ -43,7 +43,7 @@ services:
       NUXT_PUBLIC_AUTHUP_URL: ${DEV_BASE_URL:-http://localhost}/auth/
 
   backend:
-    image: ghcr.io/dnpm-dip/backend
+    image: ghcr.io/dnpm-dip/api-gateway
     pull_policy: always
     volumes:
       - './config:/dnpm_config'
