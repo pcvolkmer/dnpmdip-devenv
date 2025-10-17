@@ -7,7 +7,7 @@ Simplified docker based DNPM:DIP environment for development purposes
 The default configuration uses HTTP port `80` on `localhost`.
 
 ```
-docker compose up
+docker compose --profile http up
 ```
 
 ## Web-UI and other useful REST-URLs
